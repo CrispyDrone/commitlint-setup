@@ -1,0 +1,4 @@
+#!usr/bin/bash
+commit_msg_loc="$1"
+commit_msg="$(<"$commit_msg_loc")"
+printf "$commit_msg" | commitlint
