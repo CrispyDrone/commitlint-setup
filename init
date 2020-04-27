@@ -1,7 +1,24 @@
 #!/usr/bin/sh
+
 set -e
 
-readonly config_dir="$HOME/.config-test/git"
+readonly config_dir="$HOME/.config/git"
+force=false
+target_dir=
+
+cp()
+{
+	${force} && cp "$1" "$2" || cp -i "$1" "$2"
+}
+
+while (( $# > 0 )); do
+	case "$1" in 
+		--force) 		force=true				;;
+		--target-directory) 	target_dir="$2"	&& shift		;;
+		*) 			printf 'invalid argument' && exit 1	;;
+	esac
+	shift
+done
 
 # TODO: verify in git repository
 printf 'verifying node installation: '
@@ -20,6 +37,8 @@ printf 'script directory: %s\n' "${script_dir}"
 printf 'copying %s to %s\n' "${script_dir}/commit-template" "${config_dir}"
 cp "${script_dir}/commit-template" "${config_dir}"
 
+[ ! -z "${target_dir}" ] && cd "${target_dir}"
+
 printf 'setting up commit template %s\n' "${config_dir}/commit-template"
 git config --local commit.template "${config_dir}/commit-template"
 
@@ -31,7 +50,7 @@ cp "${script_dir}/commitlint.config.js" "$PWD"
 
 # TODO: only install if required?
 printf 'installing commitlint/cli, commitlint/config-conventional, conventional-changelog-conventionalcommits, and commitlint-plugin-cleanfeet\n'
-npm install -g @commitlint/config-conventional @commitlint/cli conventional-changelog-conventionalcommits commitlint-plugin-cleanfeet
+npm install @commitlint/config-conventional @commitlint/cli conventional-changelog-conventionalcommits commitlint-plugin-cleanfeet
 
 printf 'all done!\n'
 
