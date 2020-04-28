@@ -4,11 +4,11 @@ set -e
 
 readonly config_dir="$HOME/.config/git"
 force=false
-target_dir=
+target_dir="."
 
 cp()
 {
-	${force} && cp "$1" "$2" || cp -i "$1" "$2"
+	${force} && command cp "$1" "$2" || command cp -i "$1" "$2"
 }
 
 while (( $# > 0 )); do
@@ -32,25 +32,26 @@ script_dir="$(dirname "$0")"
 printf 'script directory: %s\n' "${script_dir}"
 
 # TODO: verify not exists
-[ ! -d "${config_dir}" ] && { printf 'creating config directory: %s\n' "${config_dir}" && mkdir -p "${config_dir}"; } || printf 'config directory %s already exists' "${config_dir}"
+[ ! -d "${config_dir}" ] && { printf 'creating config directory: %s\n' "${config_dir}" && mkdir -p "${config_dir}"; } || printf 'config directory %s already exists\n' "${config_dir}"
 
 printf 'copying %s to %s\n' "${script_dir}/commit-template" "${config_dir}"
 cp "${script_dir}/commit-template" "${config_dir}"
 
-[ ! -z "${target_dir}" ] && cd "${target_dir}"
-
 printf 'setting up commit template %s\n' "${config_dir}/commit-template"
-git config --local commit.template "${config_dir}/commit-template"
+git --git-dir="${target_dir}/.git" config --local commit.template "${config_dir}/commit-template"
 
-printf 'copying %s to %s\n' "${script_dir}/commit-msg" "$PWD/.git/hooks/"
-cp "${script_dir}/commit-msg" .git/hooks/ 
+printf 'copying %s to %s\n' "${script_dir}/commit-msg" "${target_dir}/.git/hooks/"
+cp "${script_dir}/commit-msg" "${target_dir}/.git/hooks/"
 
-printf 'copying %s to %s\n' "${script_dir}/commitlint.config.js" "$PWD"
-cp "${script_dir}/commitlint.config.js" "$PWD"
+printf 'copying %s to %s\n' "${script_dir}/commitlint.config.js" "${target_dir}"
+cp "${script_dir}/commitlint.config.js" "${target_dir}"
 
 # TODO: only install if required?
 printf 'installing commitlint/cli, commitlint/config-conventional, conventional-changelog-conventionalcommits, and commitlint-plugin-cleanfeet\n'
-npm install @commitlint/config-conventional @commitlint/cli conventional-changelog-conventionalcommits commitlint-plugin-cleanfeet
+[ ! -z "${target_dir}" ] && cd "${target_dir}"
+# npm install --prefix "${target_dir}" @commitlint/config-conventional @commitlint/cli conventional-changelog-conventionalcommits commitlint-plugin-cleanfeet
+npm install -g @commitlint/config-conventional @commitlint/cli commitlint-plugin-cleanfeet
+npm install --save-dev conventional-changelog-conventionalcommits 
 
 printf 'all done!\n'
 
