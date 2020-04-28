@@ -20,18 +20,15 @@ while (( $# > 0 )); do
 	shift
 done
 
-# TODO: verify in git repository
 printf 'verifying node installation: '
 
 node --version || \
 	{ printf 'node not installed. downloading... ' && curl -s -X GET https://nodejs.org/dist/v12.16.2/node-v12.16.2-x64.msi > node.msi && printf 'starting installation\n' && cmd //c "msiexec.exe /i node.msi"; }
 
-# TODO: test
 script_dir="$(dirname "$0")"
 
 printf 'script directory: %s\n' "${script_dir}"
 
-# TODO: verify not exists
 [ ! -d "${config_dir}" ] && { printf 'creating config directory: %s\n' "${config_dir}" && mkdir -p "${config_dir}"; } || printf 'config directory %s already exists\n' "${config_dir}"
 
 printf 'copying %s to %s\n' "${script_dir}/commit-template" "${config_dir}"
@@ -46,12 +43,13 @@ cp "${script_dir}/commit-msg" "${target_dir}/.git/hooks/"
 printf 'copying %s to %s\n' "${script_dir}/commitlint.config.js" "${target_dir}"
 cp "${script_dir}/commitlint.config.js" "${target_dir}"
 
-# TODO: only install if required?
 printf 'installing commitlint/cli, commitlint/config-conventional, conventional-changelog-conventionalcommits, and commitlint-plugin-cleanfeet\n'
 [ ! -z "${target_dir}" ] && cd "${target_dir}"
-# npm install --prefix "${target_dir}" @commitlint/config-conventional @commitlint/cli conventional-changelog-conventionalcommits commitlint-plugin-cleanfeet
 npm install -g @commitlint/config-conventional @commitlint/cli commitlint-plugin-cleanfeet
 npm install --save-dev conventional-changelog-conventionalcommits 
+
+global_npm_dir="$(npm config get prefix | sed -e 's/\\/\//g' -e 's/://')"
+[[ "${PATH,,}" != *"${global_npm_dir,,}"* ]] && printf 'updating .bashrc to include npm directory %s in path' "${global_npm_dir}" && printf 'PATH=${PATH:+${PATH}:}%s' "${global_npm_dir}" >> ~/.bashrc
 
 printf 'all done!\n'
 
