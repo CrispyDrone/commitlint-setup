@@ -49,6 +49,9 @@ npm install -g @commitlint/config-conventional @commitlint/cli commitlint-plugin
 npm install --save-dev conventional-changelog-conventionalcommits 
 
 global_npm_dir="$(npm config get prefix | sed -e 's/\\/\//g' -e 's/://')"
+
+# you should probably add this to ~/.bash_profile instead see https://superuser.com/questions/409186/environment-variables-in-bash-profile-or-bashrc
+# also you can't really make assumptions about the type of shell people are using...
 [[ "${PATH,,}" != *"${global_npm_dir,,}"* ]] && printf 'updating .bashrc to include npm directory %s in path' "${global_npm_dir}" && printf 'PATH=${PATH:+${PATH}:}%s' "${global_npm_dir}" >> ~/.bashrc
 
 printf 'all done!\n'
