@@ -1,4 +1,4 @@
 #!usr/bin/sh
 commit_msg_loc="$1"
 commit_msg="$(<"$commit_msg_loc")"
-printf '%s' "$commit_msg" | commitlint
+printf '%s' "$commit_msg" | npx commitlint
