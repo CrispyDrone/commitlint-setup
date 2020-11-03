@@ -1,4 +1,3 @@
 #!usr/bin/sh
-commit_msg_loc="$1"
-commit_msg="$(<"$commit_msg_loc")"
-printf '%s' "$commit_msg" | npx commitlint
+
+npx commitlint < "$1"
